@@ -11,6 +11,11 @@ Imports PLSM and Septic class to perform nutrient analysis.
 '''
 import PLSM
 import Septic
+import Plotting as PLT
+import os
+import bokeh 
+from bokeh.io import save, output_file
+from bokeh.layouts import column
 
 arcpy.env.overwriteOutput = True
 
@@ -54,4 +59,14 @@ septic_buffer_count = septic.Buffer(selectionTanks, temp_folder_path)
 septic_loading, septic_DF = septic.runCalculation(septic_buffer_count)
 
 # feed septic output in plsm piechart data
-plsm.pieChart(d, clip_input, septic_loading, include_septic=True, remove_waters=True)
+lvl_LU_df = plsm.lvl_1_landuse(d, clip_input, septic_loading, include_septic=True, remove_waters=True)
+
+dir = folder_location + '\html_files'
+if not os.path.exists(dir):
+    os.makedirs(dir)
+output_file(folder_location + "\\html_files\\Long Term Average Loading Kg.html")
+
+pc = plsm.pie_chart(lvl_LU_df, ['TN', 'TP'])
+plots = column(*pc)
+save(plots)
+

@@ -26,6 +26,8 @@ from collections import OrderedDict
 import sys
 from openpyxl import load_workbook
 
+import Plotting as pltng
+
 from math import pi
 from bokeh.palettes import viridis
 from bokeh.plotting import figure, show
@@ -327,7 +329,7 @@ class PLSM:
 
         return lta_initial_df
 
-    def pieChart(self, d, clip_input, septic_loading = None, include_septic = False, remove_waters = False):
+    def lvl_1_landuse(self, d, clip_input, septic_loading = None, include_septic = False, remove_waters = False):
         '''
         Takes output from PLSM class writeData(), Dissolve(), and Septic class runCalculation() to produce a pie chart
         of long term average lvl 1 landuse. Function arguements determine wheter to include septic or water in loading representation.
@@ -400,14 +402,23 @@ class PLSM:
         lvl_LU_df.to_excel(writer_pie, sheet_name='LVL 1 LTA Loading per Landuse')
         # Save excel file
         writer_pie.save()
+        return lvl_LU_df
+        
+    
+
+### actual pie chart starts here
+
+# need to import LA class to set output location, set columns, and save
+    def pie_chart(self, lvl_LU_df, analytes):
 
         pies = []
-        analytes = ['TN', 'TP']
+        # analytes = ['TN', 'TP']
 
-        dir = self.folder + '\html_files'
-        if not os.path.exists(dir):
-            os.makedirs(dir)
-        output_file(self.folder + "\\html_files\\Long Term Average Loading Kg.html")
+        # dir = self.folder + '\html_files'
+        # if not os.path.exists(dir):
+        #     os.makedirs(dir)
+        # output_file(self.folder + "\\html_files\\Long Term Average Loading Kg.html")
+
 
         for a in analytes:
             data = lvl_LU_df[['LEVEL1_L_1', str(a) + '_Kg']]
@@ -416,7 +427,7 @@ class PLSM:
 
             p = figure(height=950, width=1200, title= 'Long Term Average Loading ' + str(a) + ' Kg',
                    tools='hover', tooltips= '@LEVEL1_L_1: @'+ str(a) + '_Kg')
-
+            p.sizing_mode = 'scale_width'
             p.wedge(x=0, y=1, radius=0.4,
                 start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
                 line_color='white', fill_color='color', legend_field='LEVEL1_L_1', source=data)
@@ -426,9 +437,10 @@ class PLSM:
             p.legend.label_text_font_size = "8pt"
             p.grid.grid_line_color = None
             pies.append(p)
-        plots = column(*pies)
-        save(plots)
-        #export_png(plots, dir)
+        return pies
+        # plots = column(*pies)
+        # save(plots)
+        
 
     def annualLoading(self, dissolve_input, d):
         '''

@@ -39,7 +39,7 @@ from statistics import mean, median, mode, stdev
 from scipy.stats.mstats import gmean
 from bokeh.io import curdoc
 
-import pandas_bokeh
+# import pandas_bokeh
 
 class Visualization:
 
@@ -130,7 +130,7 @@ class Visualization:
         for p in param_list:
             
             fig = figure(plot_width=1200, plot_height=600, title = str(self.Title_dict.get(str(p))) + ' vs ' + \
-                         str(self.Title_dict.get(y_axis_select)) + ' Raw Data')
+                         str(self.Title_dict.get(y_axis_select)) + ' ' + dataString)
             fig.sizing_mode = 'scale_width'
             fig.scatter(str(p), y_axis_select, source = df, fill_alpha=0.6, fill_color= 'red', size= 8)
         
@@ -148,24 +148,33 @@ class Visualization:
             plot_list.append(fig)
         
         return plot_list
+
+
            
     def columnPlots(self, plot_list):
         plots = column(*plot_list)
         plots.sizing_mode = 'scale_width'
         return plots  
+    
+    def rowPlots(self, plot_list):
+        plots = row(*plot_list)
+        plots.sizing_mode = 'scale_width'
+        return plots 
               
     def savePlot(self, plots):
         save(plots)
         
-
-# the dashboard class can inherit functions within the visualization class in
-class Dashboard:   
-    def __init__(self, wbid):
-        self.plots = Visualization(wbid)  
+    def buildDashboard(self, plots):
+        plots.sizing_mode = 'scale_width'
+        return plots                
+    
+    def createPanel(self, tab, tabName):
+        tab = Panel(child= tab, title= tabName)
+        return tab
         
-    def buildGrid():
-        pandas_bokeh.plot_grid()
-        return
+    def createTabs(self, panels, stringLocation):
+        tabs = Tabs(tabs=panels, tabs_location= stringLocation)
+        return tabs
         
     
         
